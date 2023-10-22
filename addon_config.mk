@@ -25,7 +25,7 @@ common:
 	# required for libpd
 	ADDON_CFLAGS = -DHAVE_UNISTD_H -DUSEAPI_DUMMY -DPD -DLIBPD_EXTRA
 	# uncomment this for multiple instance support, ie. for pdMultiExample
-	#ADDON_CFLAGS += -DPDINSTANCE -DPDTHREADS
+	ADDON_CFLAGS += -DPDINSTANCE -DPDTHREADS
 	# this is included directly in pd~.c, don't build twice
 	ADDON_SOURCES_EXCLUDE = libs/libpd/pure-data/extra/pd~/binarymsg.c
 
