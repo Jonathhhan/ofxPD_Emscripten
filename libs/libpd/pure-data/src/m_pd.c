@@ -25,20 +25,20 @@ t_pd *pd_new(t_class *c)
     return (x);
 }
 
-void pd_free(t_pd *x)
-{
-    t_class *c = *x;
-    if (c->c_freemethod) (*(t_gotfn)(c->c_freemethod))(x);
-    if (c->c_patchable)
-    {
-        while (((t_object *)x)->ob_outlet)
-            outlet_free(((t_object *)x)->ob_outlet);
-        while (((t_object *)x)->ob_inlet)
-            inlet_free(((t_object *)x)->ob_inlet);
-        if (((t_object *)x)->ob_binbuf)
-            binbuf_free(((t_object *)x)->ob_binbuf);
-    }
-    if (c->c_size) t_freebytes(x, c->c_size);
+typedef void (*t_freemethod)(t_pd *);
+
+void pd_free(t_pd * x) {
+	t_class * c = *x;
+	if (c->c_freemethod) (*(t_freemethod)(c->c_freemethod))(x);
+	if (c->c_patchable) {
+		while (((t_object *)x)->ob_outlet)
+			outlet_free(((t_object *)x)->ob_outlet);
+		while (((t_object *)x)->ob_inlet)
+			inlet_free(((t_object *)x)->ob_inlet);
+		if (((t_object *)x)->ob_binbuf)
+			binbuf_free(((t_object *)x)->ob_binbuf);
+	}
+	if (c->c_size) t_freebytes(x, c->c_size);
 }
 
 void gobj_save(t_gobj *x, t_binbuf *b)
@@ -275,7 +275,10 @@ void pd_bang(t_pd *x)
 
 void pd_float(t_pd *x, t_float f)
 {
-    (*(*x)->c_floatmethod)(x, f);
+	if (x == &pd_objectmaker)
+		((t_floatmethodr)(*(*x)->c_floatmethod))(x, f);
+	else
+		(*(*x)->c_floatmethod)(x, f);
 }
 
 void pd_pointer(t_pd *x, t_gpointer *gp)
